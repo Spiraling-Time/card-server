@@ -1,4 +1,3 @@
-const WebSocket = require("ws");
 
 const http = require("http");
 const WebSocket = require("ws");
@@ -11,7 +10,7 @@ const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
     console.log("Server running on", PORT);
 });
-console.log("Server running on ws://127.0.0.1:8080");
+console.log("Hi!");
 
 // --------------------
 // GAME STATE
