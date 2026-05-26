@@ -1,4 +1,4 @@
-
+console.log("BOOTING SERVER...");
 const http = require("http");
 const WebSocket = require("ws");
 
@@ -8,9 +8,8 @@ const wss = new WebSocket.Server({ server });
 const PORT = process.env.PORT || 8080;
 
 server.listen(PORT, () => {
-    console.log("Server running on", PORT);
+    console.log("Server running on port", PORT);
 });
-console.log("Hi!");
 
 // --------------------
 // GAME STATE
