@@ -50,8 +50,7 @@ function shuffle(array) {
 }
 
 function makeCode() {
-    console.log("Made code")
-    return "6US83";//Math.random().toString(36).substring(2, 7).toUpperCase();
+    return Math.random().toString(36).substring(2, 7).toUpperCase();
 }
 
 // get current player in turn
@@ -122,6 +121,7 @@ wss.on("connection", (ws) => {
         // -------------------------
         if (msg.type === "create_room") {
             const code = makeCode();
+            console.log(code);
 
             rooms[code] = [];
             gameState[code] = {
