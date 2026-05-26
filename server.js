@@ -50,6 +50,7 @@ function shuffle(array) {
 }
 
 function makeCode() {
+    console.log("Made code")
     return "6US83";//Math.random().toString(36).substring(2, 7).toUpperCase();
 }
 
