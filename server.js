@@ -50,7 +50,7 @@ function shuffle(array) {
 }
 
 function makeCode() {
-    return Math.random().toString(36).substring(2, 7).toUpperCase();
+    return 6US83//Math.random().toString(36).substring(2, 7).toUpperCase();
 }
 
 // get current player in turn
