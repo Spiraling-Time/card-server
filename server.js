@@ -116,7 +116,18 @@ wss.on("connection", (ws) => {
                 msg: "Server received: " + msg.msg
             }));
         }
+        if (msg.type === "start") {
+            const code = ws.roomCode;
+            const state = gameState[code];
 
+            if (!code || !state) return;
+
+            for (const client of rooms[code]) {
+                client.send(JSON.stringify({
+                    type: "started"
+                }));
+            }
+        }
         // -------------------------
         // CREATE ROOM
         // -------------------------
