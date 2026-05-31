@@ -38,7 +38,6 @@ function createDeck() {
             cards.push(`${j}diamonds-${i}`);
         }
     }
-
     return cards;
 }
 
@@ -229,18 +228,24 @@ wss.on("connection", (ws) => {
         }
 
         if (msg.type === "draw_card") {
+            
             const code = ws.roomCode;
-            const state = gameState[code];
+            const state = gameState[code];            
 
             if (!code || !state) return;
 
-            const card = drawCard(state, ws.playerId);
-
+            const card = drawCard(state, msg.player);
+            let empty = "false";
+            if (state.deck.length === 0){
+                empty = "true";
+            }
             for (const client of rooms[code]) {
                 client.send(JSON.stringify({
                     type: "cards_drawn",
                     cards: [card],
-                    playerId: ws.playerId
+                    playerId: msg.player,
+                    playerWhoPlayed: ws.playerId,
+                    isEmpty: empty
                 }));
             }
         }
@@ -294,6 +299,101 @@ wss.on("connection", (ws) => {
             }
         }
 
+        //ADD TO HAND (FROM ANOTHER)
+        if (msg.type === "add_to_opponent_hand_from_discard") {
+
+            const code = ws.roomCode;
+
+            if (!code || !gameState[code]) return;
+
+            const state = gameState[code];
+
+            //const hand = state.hands[ws.playerId];
+
+            const opponent_hand = state.hands[msg.opponent]
+
+            //if (!hand) return;
+
+            const cardIndex = state.discardPile.indexOf(msg.card);
+
+            // card not in hand = reject
+            if (cardIndex === -1) {
+                console.log("Rejected add:", msg.card);
+                return;
+            }
+
+            // remove from discard pile
+
+            state.discardPile.splice(cardIndex, 1);
+
+            // add to opponent hand
+            opponent_hand.push(msg.card);
+
+            console.log(
+                ws.playerId,
+                "gave",
+                msg.card,
+                "to:",
+                msg.opponent
+            );
+
+            // tell everybody
+            for (let client of rooms[code]) {
+                client.send(JSON.stringify({
+                    type: "added_from_discard_to_opponent_hand",
+                    card: msg.card,
+                    opponent: msg.opponent
+                }));
+            }
+        }
+
+        //RESHUFFLE
+
+        if (msg.type === "reshuffle") {
+            const code = ws.roomCode;
+
+            if (!code || !gameState[code]) return;
+
+            const state = gameState[code];
+
+            for (let c of state.discardPile){
+                state.deck.push(c);
+            }
+            state.discardPile.length = 0;
+            shuffle(state.deck);
+            
+            let empty = "false";
+            if (state.deck.length === 0){
+                empty = "true";
+            }
+
+            // tell everybody
+            for (let client of rooms[code]) {
+                client.send(JSON.stringify({
+                    type: "reshuffled",
+                    isEmpty: empty
+                }));
+            }
+        }
+        //NAME
+        if (msg.type === "rename") {
+            const code = ws.roomCode;
+
+            if (!code || !gameState[code]) return;
+
+            const state = gameState[code];
+
+            const name = msg.newName
+
+            // tell everybody
+            for (let client of rooms[code]) {
+                client.send(JSON.stringify({
+                    type: "renamed",
+                    newName: msg.newName,
+                    playerId: ws.playerId
+                }));
+            }
+        }
         // -------------------------
         // END TURN
         // -------------------------
